@@ -59,21 +59,21 @@ jobs:
 
       # ===== Upload coverage artifacts =====
       - name: Upload coverage report (HTML)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report-html
           path: TwoD5DMonitoring.Tests/TestResults/CoverageReport/
           retention-days: 30
 
       - name: Upload coverage badge
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-badge
           path: TwoD5DMonitoring.Tests/TestResults/CoverageReport/badge*.svg
           retention-days: 30
 
       - name: Upload test results (TRX)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: TwoD5DMonitoring.Tests/TestResults/*.trx
@@ -131,7 +131,7 @@ jobs:
             -p:PublishTrimmed=false
 
       - name: Upload WPF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wpf-app-windows
           path: ./publish/**
