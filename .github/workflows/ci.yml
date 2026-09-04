@@ -20,7 +20,7 @@ jobs:
     steps:
       # ===== Checkout =====
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # ===== Setup .NET =====
       - name: Setup .NET
@@ -108,7 +108,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
