@@ -1,0 +1,35 @@
+# Build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Test results
+TestResults/
+*.trx
+coverage.cobertura.xml
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# NuGet
+packages/
+*.nupkg
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+Logs/
+
+# Publish output
+publish/
+
+# Coverage reports
+TestResults/CoverageReport/

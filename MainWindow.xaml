@@ -1,0 +1,135 @@
+<Window x:Class="TwoD5DMonitoring.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:designer="clr-namespace:TwoD5DMonitoring.Designer"
+        xmlns:runtime="clr-namespace:TwoD5DMonitoring.Runtime"
+        xmlns:views="clr-namespace:TwoD5DMonitoring.Views"
+        xmlns:vm="clr-namespace:TwoD5DMonitoring.ViewModels"
+        Title="上辅机 2.5D 矢量组态监控系统" 
+        Height="1080" Width="1920"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#1A1A1A">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部菜单栏 -->
+        <Menu Grid.Row="0" Background="#2A2A2A" Foreground="White" FontSize="13" Height="32">
+            <MenuItem Header="文件" Foreground="White">
+                <MenuItem Header="🆕 新建项目" Command="{Binding NewProjectCommand}"/>
+                <MenuItem Header="📂 打开项目" Command="{Binding OpenProjectCommand}"/>
+                <MenuItem Header="💾 保存项目" Command="{Binding SaveProjectCommand}"/>
+                <Separator/>
+                <MenuItem Header="📤 导入配置" Command="{Binding ImportConfigCommand}"/>
+                <MenuItem Header="📥 导出配置" Command="{Binding ExportConfigCommand}"/>
+                <Separator/>
+                <MenuItem Header="🚪 退出" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+            <MenuItem Header="视图" Foreground="White">
+                <MenuItem Header="🔧 设计器" Command="{Binding SwitchToDesignerCommand}"/>
+                <MenuItem Header="▶ 运行时" Command="{Binding SwitchToRuntimeCommand}"/>
+                <Separator/>
+                <MenuItem Header="📦 物料管理" Command="{Binding SwitchToMaterialCommand}"/>
+                <MenuItem Header="📋 配方管理" Command="{Binding SwitchToRecipeCommand}"/>
+                <MenuItem Header="🏭 罐体分配" Command="{Binding SwitchToTankCommand}"/>
+                <Separator/>
+                <MenuItem Header="📊 生产报表" Command="{Binding SwitchToProductionReportCommand}"/>
+                <MenuItem Header="🏭 OEE分析" Command="{Binding SwitchToOeeCommand}"/>
+                <MenuItem Header="⚡ 能耗统计" Command="{Binding SwitchToEnergyCommand}"/>
+                <MenuItem Header="📈 历史趋势" Command="{Binding SwitchToTrendCommand}"/>
+                <Separator/>
+                <MenuItem Header="🌐 3D监控" Command="{Binding SwitchTo3DCommand}"/>
+                <MenuItem Header="✏️ 3D编辑器" Command="{Binding SwitchTo3DEditorCommand}"/>
+            </MenuItem>
+            <MenuItem Header="工具" Foreground="White">
+                <MenuItem Header="🔗 标签绑定" Command="{Binding OpenTagBindingCommand}"/>
+                <MenuItem Header="📊 性能监控" Command="{Binding OpenPerformanceCommand}"/>
+                <MenuItem Header="⚙️ 系统设置" Command="{Binding OpenSettingsCommand}"/>
+            </MenuItem>
+            <MenuItem Header="帮助" Foreground="White">
+                <MenuItem Header="📖 使用手册" Command="{Binding OpenManualCommand}"/>
+                <MenuItem Header="ℹ️ 关于" Command="{Binding OpenAboutCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- 模式切换标签页 -->
+        <TabControl x:Name="ModeTabControl" Grid.Row="1" Background="Transparent" BorderThickness="0"
+                    SelectedIndex="{Binding CurrentTabIndex, Mode=TwoWay}">
+            <TabItem Header="🔧 设计器" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsDesignerVisible, Converter={StaticResource BoolToVis}}">
+                <designer:DesignerCanvas x:Name="DesignerCanvas"/>
+            </TabItem>
+            <TabItem Header="▶ 运行时" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsRuntimeVisible, Converter={StaticResource BoolToVis}}">
+                <runtime:RuntimeView x:Name="RuntimeView"/>
+            </TabItem>
+            <TabItem Header="📦 物料管理" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsMaterialVisible, Converter={StaticResource BoolToVis}}">
+                <views:MaterialManagementView x:Name="MaterialView"/>
+            </TabItem>
+            <TabItem Header="📋 配方管理" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsRecipeVisible, Converter={StaticResource BoolToVis}}">
+                <views:RecipeManagementView x:Name="RecipeView"/>
+            </TabItem>
+            <TabItem Header="🏭 罐体分配" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsTankVisible, Converter={StaticResource BoolToVis}}">
+                <views:TankMaterialAssignmentView x:Name="TankView"/>
+            </TabItem>
+            <TabItem Header="🌐 3D监控" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding Is3DVisible, Converter={StaticResource BoolToVis}}">
+                <ContentControl x:Name="ThreeDViewContent"/>
+            </TabItem>
+            <TabItem Header="📊 生产报表" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsProductionReportVisible, Converter={StaticResource BoolToVis}}">
+                <views:ProductionReportView x:Name="ProductionReportView"/>
+            </TabItem>
+            <TabItem Header="🏭 OEE分析" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsOeeVisible, Converter={StaticResource BoolToVis}}">
+                <views:OeeAnalysisView x:Name="OeeView"/>
+            </TabItem>
+            <TabItem Header="⚡ 能耗统计" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsEnergyVisible, Converter={StaticResource BoolToVis}}">
+                <views:EnergyStatisticsView x:Name="EnergyView"/>
+            </TabItem>
+            <TabItem Header="📈 历史趋势" FontSize="13" FontWeight="Bold" Foreground="White"
+                     Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1,1,1,0"
+                     Visibility="{Binding IsTrendVisible, Converter={StaticResource BoolToVis}}">
+                <views:TrendView x:Name="TrendView"/>
+            </TabItem>
+        </TabControl>
+
+        <!-- 状态栏 -->
+        <StatusBar Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Bottom" Background="#1A1A1A" BorderBrush="#333333" BorderThickness="0,1,0,0" Foreground="White" Height="28">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="{Binding StatusMessage}" FontSize="11"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding CurrentMode}" FontSize="11" Foreground="#AAAAAA"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding PlcConnectionStatus}" FontSize="11"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="10,0">
+                <TextBlock Text="{Binding DatabaseStatus}" FontSize="11"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="10,0">
+                <TextBlock x:Name="TimeText" FontSize="11"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

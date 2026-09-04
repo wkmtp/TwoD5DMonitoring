@@ -1,0 +1,160 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  SOLUTION_FILE: 'TwoD5DMonitoring.sln'
+  TEST_PROJECT: 'TwoD5DMonitoring.Tests/TwoD5DMonitoring.Tests.csproj'
+  MAIN_PROJECT: 'TwoD5DMonitoring/TwoD5DMonitoring.csproj'
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      # ===== Checkout =====
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ===== Setup .NET =====
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+
+      # ===== Restore dependencies =====
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --verbosity normal
+
+      # ===== Build =====
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --no-restore --configuration Release --verbosity normal
+
+      # ===== Run unit tests with coverage =====
+      - name: Run unit tests
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} \
+            --no-build \
+            --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory:./TestResults \
+            --logger:trx \
+            --verbosity normal
+
+      # ===== Generate coverage report =====
+      - name: Generate coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.11
+        with:
+          reports: 'TwoD5DMonitoring.Tests/TestResults/**/coverage.cobertura.xml'
+          targetdir: 'TwoD5DMonitoring.Tests/TestResults/CoverageReport'
+          reporttypes: 'Html;Cobertura;Badges'
+          verbosity: 'Verbose'
+
+      # ===== Upload coverage artifacts =====
+      - name: Upload coverage report (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-html
+          path: TwoD5DMonitoring.Tests/TestResults/CoverageReport/
+          retention-days: 30
+
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: TwoD5DMonitoring.Tests/TestResults/CoverageReport/badge*.svg
+          retention-days: 30
+
+      - name: Upload test results (TRX)
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TwoD5DMonitoring.Tests/TestResults/*.trx
+          retention-days: 30
+
+      # ===== Publish coverage to Codecov (optional) =====
+      # - name: Upload to Codecov
+      #   if: env.CODECOV_TOKEN != ''
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: ./TwoD5DMonitoring.Tests/TestResults/**/coverage.cobertura.xml
+      #     flags: unittests
+      #     name: codecov-umbrella
+
+      # ===== Summary =====
+      - name: Display coverage summary
+        run: |
+          $xml = [xml](Get-Content "TwoD5DMonitoring.Tests/TestResults/**/coverage.cobertura.xml")
+          $lineRate = [math]::Round($xml.coverage['line-rate'] * 100, 1)
+          $branchRate = [math]::Round($xml.coverage['branch-rate'] * 100, 1)
+          Write-Host "## Coverage Summary"
+          Write-Host "| Metric | Coverage |"
+          Write-Host "|--------|----------|"
+          Write-Host "| Line | $lineRate% |"
+          Write-Host "| Branch | $branchRate% |"
+        shell: pwsh
+
+  # ===== Build WPF Application (optional) =====
+  build-wpf-app:
+    needs: build-and-test
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --verbosity normal
+
+      - name: Publish WPF application
+        run: |
+          dotnet publish ${{ env.MAIN_PROJECT }} \
+            --configuration Release \
+            --runtime win-x64 \
+            --self-contained true \
+            --output ./publish \
+            -p:PublishSingleFile=true \
+            -p:PublishReadyToRun=true \
+            -p:PublishTrimmed=false
+
+      - name: Upload WPF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpf-app-windows
+          path: ./publish/**
+          retention-days: 7
+
+  # ===== Quality Gate (optional) =====
+  quality-gate:
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - name: Check coverage thresholds
+        run: |
+          $xml = [xml](Get-Content "TwoD5DMonitoring.Tests/TestResults/**/coverage.cobertura.xml")
+          $lineRate = [math]::Round($xml.coverage['line-rate'] * 100, 1)
+          $branchRate = [math]::Round($xml.coverage['branch-rate'] * 100, 1)
+          
+          # 设置最低阈值 (可根据项目实际情况调整)
+          $minLineRate = 10
+          $minBranchRate = 5
+          
+          if ($lineRate -lt $minLineRate -or $branchRate -lt $minBranchRate) {
+            Write-Error "Coverage below threshold! Line: $lineRate% (min $minLineRate%), Branch: $branchRate% (min $minBranchRate%)"
+            exit 1
+          }
+          Write-Host "Quality gate passed: Line $lineRate%, Branch $branchRate%"
+        shell: pwsh

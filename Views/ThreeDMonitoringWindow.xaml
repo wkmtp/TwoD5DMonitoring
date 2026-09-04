@@ -1,0 +1,177 @@
+<Window x:Class="TwoD5DMonitoring.Views.ThreeDMonitoringWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="3D 监控 - 功能开发中" 
+        Height="800" Width="1200"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#1A1A1A"
+        Foreground="White">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 工具栏 -->
+        <Border Grid.Row="0" Background="#2A2A2A" BorderBrush="#444444" BorderThickness="0,0,0,1" Padding="10,5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="🌐 3D 监控视图" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                
+                <Border Background="#3A3A3A" BorderBrush="#555555" BorderThickness="1" CornerRadius="4" Padding="5,2" Margin="5,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="场景: " VerticalAlignment="Center" Margin="5,0"/>
+                        <ComboBox x:Name="SceneComboBox" Width="200" Background="#4A4A4A" Foreground="White" 
+                                  BorderBrush="#555555" BorderThickness="1" VerticalAlignment="Center"
+                                  SelectionChanged="SceneComboBox_SelectionChanged"/>
+                    </StackPanel>
+                </Border>
+
+                <Button x:Name="LoadSceneButton" Content="📂 加载场景" Margin="10,0,0,0" Padding="15,5"
+                        Background="#3A3A3A" Foreground="White" BorderBrush="#555555" BorderThickness="1"
+                        Click="LoadSceneButton_Click"/>
+                
+                <Button x:Name="SaveSceneButton" Content="💾 保存场景" Margin="10,0,0,0" Padding="15,5"
+                        Background="#3A3A3A" Foreground="White" BorderBrush="#555555" BorderThickness="1"
+                        Click="SaveSceneButton_Click"/>
+                
+                <Button x:Name="EditSceneButton" Content="✏️ 编辑场景" Margin="10,0,0,0" Padding="15,5"
+                        Background="#3A3A3A" Foreground="White" BorderBrush="#555555" BorderThickness="1"
+                        Click="EditSceneButton_Click"/>
+
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="20,0" Width="1"/>
+
+                <Button x:Name="ResetCameraButton" Content="📷 重置视角" Margin="10,0,0,0" Padding="15,5"
+                        Background="#3A3A3A" Foreground="White" BorderBrush="#555555" BorderThickness="1"
+                        Click="ResetCameraButton_Click"/>
+                
+                <Button x:Name="ToggleGridButton" Content="📐 网格" Margin="10,0,0,0" Padding="15,5"
+                        Background="#3A3A3A" Foreground="White" BorderBrush="#555555" BorderThickness="1"
+                        Click="ToggleGridButton_Click"/>
+
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="20,0" Width="1"/>
+
+                <Button x:Name="StartAllAnimationButton" Content="▶ 全部动画" Margin="10,0,0,0" Padding="15,5"
+                        Background="#2E7D32" Foreground="White" BorderBrush="#4CAF50" BorderThickness="1"
+                        Click="StartAllAnimationButton_Click"/>
+                
+                <Button x:Name="StopAllAnimationButton" Content="⏹ 停止动画" Margin="10,0,0,0" Padding="15,5"
+                        Background="#C62828" Foreground="White" BorderBrush="#EF5350" BorderThickness="1"
+                        Click="StopAllAnimationButton_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 主视图区域 -->
+        <Border Grid.Row="1" Background="#1E1E1E" BorderBrush="#333333" BorderThickness="1" Margin="10" CornerRadius="4">
+            <Grid>
+                <!-- 3D 渲染占位区域 -->
+                <Border x:Name="RenderArea" Background="#0D0D0D">
+                    <Grid>
+                        <!-- 占位内容 -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="🌐" FontSize="80" HorizontalAlignment="Center" Foreground="#333333"/>
+                            <TextBlock Text="3D 监控功能开发中" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" 
+                                       Foreground="#555555" Margin="0,20,0,10"/>
+                            <TextBlock Text="该功能预留接口，当前版本暂不实现具体 3D 渲染" FontSize="14" 
+                                       HorizontalAlignment="Center" Foreground="#777777" TextWrapping="Wrap" MaxWidth="400"/>
+                            <TextBlock Text="架构已就绪，支持 Three.js / Unity / Helix Toolkit 等引擎集成" FontSize="12" 
+                                       HorizontalAlignment="Center" Foreground="#666666" Margin="0,10,0,0"/>
+                        </StackPanel>
+
+                        <!-- 状态指示器 -->
+                        <StackPanel x:Name="StatusPanel" HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                    Margin="20" Orientation="Horizontal">
+                            <Border Background="#2E7D32" CornerRadius="10" Padding="8,4" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#4CAF50" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" 场景已加载" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#F57C00" CornerRadius="10" Padding="8,4" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#FF9800" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" 3 设备在线" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#1976D2" CornerRadius="10" Padding="8,4" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8" Fill="#2196F3" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" FPS: 60" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- 设备列表预览 -->
+                        <StackPanel x:Name="DeviceListPanel" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+                                    Margin="20" Width="250" MaxHeight="200">
+                            <TextBlock Text="场景设备" FontSize="13" FontWeight="Bold" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <Border Background="#2A2A2A" BorderBrush="#444444" BorderThickness="1" CornerRadius="4" MaxHeight="180">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl x:Name="DeviceListControl">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#333333" BorderBrush="#444444" BorderThickness="0,0,0,1" Padding="8,4">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Width="10" Height="10" Fill="#4CAF50" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding DeviceName}" FontSize="11" Foreground="White"/>
+                                                            <TextBlock Text="{Binding ModelType}" FontSize="9" Foreground="#888888"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 加载中遮罩 -->
+                <Border x:Name="LoadingOverlay" Background="#80000000" Visibility="Collapsed">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Width="50" Height="50" BorderBrush="#2196F3" BorderThickness="4" CornerRadius="25"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <RotateTransform x:Name="LoadingRotation" Angle="0"/>
+                            </Border.RenderTransform>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Border.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="LoadingRotation"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="0" To="360" Duration="0:0:1"
+                                                             RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <TextBlock Text="加载场景中..." FontSize="16" Foreground="White" Margin="0,15,0,0" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 状态栏 -->
+        <StatusBar Grid.Row="2" Background="#2A2A2A" BorderBrush="#444444" BorderThickness="0,1,0,0" Foreground="White">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="就绪 - 3D 监控模式 (预览版)"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock x:Name="DeviceCountText" Text="设备: 0"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock x:Name="FpsText" Text="FPS: --"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

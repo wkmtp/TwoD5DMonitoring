@@ -1,0 +1,197 @@
+<UserControl x:Class="TwoD5DMonitoring.Controls.Pipes.PipeControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TwoD5DMonitoring.Controls.Pipes"
+             xmlns:models="clr-namespace:TwoD5DMonitoring.Models"
+             xmlns:conv="clr-namespace:TwoD5DMonitoring.Converters">
+
+    <UserControl.Resources>
+        <conv:PipeTypeToBrushConverter x:Key="PipeTypeToBrushConverter" />
+        <conv:PipeTypeToParticleColorConverter x:Key="PipeTypeToParticleColorConverter" />
+        <conv:PipeTypeToArrowColorConverter x:Key="PipeTypeToArrowColorConverter" />
+        <conv:DiameterToShadowThicknessConverter x:Key="DiameterToShadowThicknessConverter" />
+        <conv:DiameterToHighlightThicknessConverter x:Key="DiameterToHighlightThicknessConverter" />
+        <conv:FlowDirectionToDashOffsetConverter x:Key="FlowDirectionToDashOffsetConverter" />
+        <conv:DiameterToCanvasLeftConverter x:Key="DiameterToCanvasLeftConverter" />
+        <conv:DiameterToCanvasTopConverter x:Key="DiameterToCanvasTopConverter" />
+        <conv:DiameterToHighlightOffsetConverter x:Key="DiameterToHighlightOffsetConverter" />
+        <conv:PipeTypeToVisibilityConverter x:Key="PipeTypeToVisibilityConverter" />
+        <conv:DiameterToShadowBrushConverter x:Key="DiameterToShadowBrushConverter" />
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <conv:PointToCanvasLeftConverter x:Key="PointToCanvasLeftConverter" />
+        <conv:PointToCanvasTopConverter x:Key="PointToCanvasTopConverter" />
+        <conv:DiameterToShadowWidthConverter x:Key="DiameterToShadowWidthConverter" />
+        <conv:BoolToConnectedBrushConverter x:Key="BoolToConnectedBrushConverter" />
+
+        <!-- Pipe Path Style -->
+        <Style x:Key="PipePathStyle" TargetType="Path">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+
+        <!-- Particle Dash Style -->
+        <Style x:Key="ParticleDashStyle" TargetType="Path">
+            <Setter Property="StrokeDashArray" Value="8,6"/>
+            <Setter Property="StrokeDashCap" Value="Round"/>
+            <Setter Property="StrokeThickness" Value="2"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="RootGrid">
+        <!-- Pipe Shadow - Bottom Layer -->
+        <Path x:Name="ShadowPath"
+              Style="{StaticResource PipePathStyle}"
+              Stroke="{Binding Diameter, Converter={StaticResource DiameterToShadowBrushConverter}}"
+              StrokeThickness="{Binding Diameter, Converter={StaticResource DiameterToShadowThicknessConverter}}">
+            <Path.Data>
+                <PathGeometry x:Name="ShadowGeometry" />
+            </Path.Data>
+        </Path>
+
+        <!-- Pipe Main Body - 2.5D Gradient Wall -->
+        <Path x:Name="MainPipePath"
+              Style="{StaticResource PipePathStyle}"
+              Stroke="{Binding PipeType, Converter={StaticResource PipeTypeToBrushConverter}}"
+              StrokeThickness="{Binding Diameter}">
+            <Path.Data>
+                <PathGeometry x:Name="PipeGeometry" />
+            </Path.Data>
+            <Path.Effect>
+                <DropShadowEffect Color="#20FFFFFF" BlurRadius="2" ShadowDepth="0" Opacity="0.6" Direction="0"/>
+            </Path.Effect>
+        </Path>
+
+        <!-- Pipe Inner Wall Highlight - Top Fine Line -->
+        <Path x:Name="HighlightPath"
+              Style="{StaticResource PipePathStyle}"
+              Stroke="{StaticResource PipeHighlightBrush}"
+              StrokeThickness="{Binding Diameter, Converter={StaticResource DiameterToHighlightThicknessConverter}}"
+              Opacity="0.4">
+            <Path.Data>
+                <PathGeometry x:Name="HighlightGeometry" />
+            </Path.Data>
+        </Path>
+
+        <!-- Particle Flow - StrokeDashOffset Animation -->
+        <Path x:Name="ParticlePath"
+              Style="{StaticResource ParticleDashStyle}"
+              Stroke="{Binding PipeType, Converter={StaticResource PipeTypeToParticleColorConverter}}"
+              IsHitTestVisible="False"
+              Visibility="{Binding IsAnimating, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Path.Data>
+                <PathGeometry x:Name="ParticleGeometry" />
+            </Path.Data>
+            <Path.Triggers>
+                <EventTrigger RoutedEvent="Path.Loaded">
+                    <BeginStoryboard x:Name="FlowStoryboard">
+                        <Storyboard RepeatBehavior="Forever" x:Name="FlowAnimation">
+                            <DoubleAnimation Storyboard.TargetName="ParticlePath"
+                                             Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                             From="0" To="20"
+                                             Duration="0:0:2"
+                                             RepeatBehavior="Forever" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Path.Triggers>
+        </Path>
+
+        <!-- Start Anchor -->
+        <Ellipse x:Name="StartAnchor"
+                 Width="12" Height="12"
+                 Fill="#4488FF"
+                 Stroke="White" StrokeThickness="2"
+                 Visibility="Collapsed"
+                 Cursor="Hand">
+            <Ellipse.RenderTransform>
+                <TranslateTransform X="-6" Y="-6" />
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <!-- End Anchor -->
+        <Ellipse x:Name="EndAnchor"
+                 Width="12" Height="12"
+                 Fill="#FF8844"
+                 Stroke="White" StrokeThickness="2"
+                 Visibility="Collapsed"
+                 Cursor="Hand">
+            <Ellipse.RenderTransform>
+                <TranslateTransform X="-6" Y="-6" />
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <!-- Control Points -->
+        <ItemsControl x:Name="ControlPointsControl"
+                      ItemsSource="{Binding ControlPoints}"
+                      Visibility="Collapsed">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Thumb x:Name="ControlPointThumb"
+                           Width="14" Height="14"
+                           Cursor="SizeAll"
+                           Background="#FF8800"
+                           BorderBrush="White" BorderThickness="2">
+                        <Thumb.RenderTransform>
+                            <TranslateTransform X="-7" Y="-7" />
+                        </Thumb.RenderTransform>
+                        <Thumb.Template>
+                            <ControlTemplate TargetType="Thumb">
+                                <Ellipse Fill="{TemplateBinding Background}"
+                                         Stroke="{TemplateBinding BorderBrush}"
+                                         StrokeThickness="{TemplateBinding BorderThickness}"
+                                         Width="{TemplateBinding Width}"
+                                         Height="{TemplateBinding Height}"/>
+                            </ControlTemplate>
+                        </Thumb.Template>
+                    </Thumb>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X, Converter={StaticResource PointToCanvasLeftConverter}}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Y, Converter={StaticResource PointToCanvasTopConverter}}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <!-- Pipe Label -->
+        <TextBlock x:Name="PipeLabel"
+                   Text="{Binding Name}"
+                   FontSize="10"
+                   Foreground="#CCCCCC"
+                   Background="#20000000"
+                   Padding="2,1"
+                   Visibility="Collapsed"
+                   TextAlignment="Center">
+            <TextBlock.RenderTransform>
+                <TranslateTransform X="-20" Y="-25" />
+            </TextBlock.RenderTransform>
+        </TextBlock>
+
+        <!-- Flow Arrow -->
+        <Path x:Name="FlowArrow"
+              Fill="{Binding PipeType, Converter={StaticResource PipeTypeToArrowColorConverter}}"
+              Visibility="Collapsed"
+              IsHitTestVisible="False">
+            <Path.Data>
+                <PathGeometry>
+                    <PathFigure StartPoint="0,0" IsClosed="True">
+                        <LineSegment Point="8,-4"/>
+                        <LineSegment Point="8,4"/>
+                    </PathFigure>
+                </PathGeometry>
+            </Path.Data>
+            <Path.RenderTransform>
+                <TransformGroup>
+                    <RotateTransform x:Name="ArrowRotation" CenterX="4" CenterY="0" />
+                    <TranslateTransform x:Name="ArrowTranslate" X="-4" Y="-4" />
+                </TransformGroup>
+            </Path.RenderTransform>
+        </Path>
+    </Grid>
+</UserControl>

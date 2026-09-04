@@ -1,0 +1,286 @@
+<local:BaseEquipmentControl x:Class="TwoD5DMonitoring.Controls.Equipment.OilPumpControl"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:TwoD5DMonitoring.Controls"
+              xmlns:models="clr-namespace:TwoD5DMonitoring.Models"
+              xmlns:conv="clr-namespace:TwoD5DMonitoring.Converters">
+
+    <local:BaseEquipmentControl.Resources>
+        <conv:EquipmentStateToColorConverter x:Key="StateToColorConverter" />
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <conv:BoolToConnectedBrushConverter x:Key="BoolToConnectedBrushConverter" />
+        <conv:DiameterToShadowThicknessConverter x:Key="DiameterToShadowThicknessConverter" />
+        <conv:PointToCanvasLeftConverter x:Key="PointToCanvasLeftConverter" />
+        <conv:PointToCanvasTopConverter x:Key="PointToCanvasTopConverter" />
+
+        <!-- Pump Body Geometry -->
+        <PathGeometry x:Key="PumpBodyGeometry">
+            <PathFigure StartPoint="0,0" IsClosed="True">
+                <LineSegment Point="70,0"/>
+                <ArcSegment Point="70,50" Size="10,10" SweepDirection="Clockwise"/>
+                <LineSegment Point="0,50"/>
+                <ArcSegment Point="0,0" Size="10,10" SweepDirection="Clockwise"/>
+            </PathFigure>
+        </PathGeometry>
+
+        <!-- Pump Cover Geometry -->
+        <PathGeometry x:Key="PumpCoverGeometry">
+            <PathFigure StartPoint="10,0" IsClosed="True">
+                <LineSegment Point="60,0"/>
+                <ArcSegment Point="60,20" Size="5,5" SweepDirection="Clockwise"/>
+                <LineSegment Point="10,20"/>
+                <ArcSegment Point="10,0" Size="5,5" SweepDirection="Counterclockwise"/>
+            </PathFigure>
+        </PathGeometry>
+
+        <!-- Rotor Geometry -->
+        <PathGeometry x:Key="RotorGeometry">
+            <PathFigure StartPoint="0,0" IsClosed="True">
+                <LineSegment Point="30,0"/>
+                <BezierSegment Point1="35,5" Point2="35,15" Point3="30,20"/>
+                <LineSegment Point="0,20"/>
+                <BezierSegment Point1="-5,15" Point2="-5,5" Point3="0,0"/>
+            </PathFigure>
+        </PathGeometry>
+
+        <!-- Flange Geometry -->
+        <PathGeometry x:Key="FlangeGeometry">
+            <PathFigure StartPoint="0,0" IsClosed="True">
+                <LineSegment Point="20,0"/>
+                <LineSegment Point="20,15"/>
+                <LineSegment Point="0,15"/>
+            </PathFigure>
+        </PathGeometry>
+
+        <!-- Pressure Gauge Geometry -->
+        <EllipseGeometry x:Key="GaugeGeometry" Center="0,0" RadiusX="20" RadiusY="20"/>
+
+        <!-- Needle Geometry -->
+        <PathGeometry x:Key="NeedleGeometry">
+            <PathFigure StartPoint="0,0" IsClosed="True">
+                <LineSegment Point="3,0"/>
+                <LineSegment Point="0,-15"/>
+                <LineSegment Point="-3,0"/>
+            </PathFigure>
+        </PathGeometry>
+
+        <!-- Pump Body Brush -->
+        <LinearGradientBrush x:Key="PumpBodyBrush" StartPoint="0,0" EndPoint="1,0" MappingMode="RelativeToBoundingBox">
+            <GradientStop Color="#4A4A4A" Offset="0.0"/>
+            <GradientStop Color="#333333" Offset="0.5"/>
+            <GradientStop Color="#222222" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Pump Cover Brush -->
+        <LinearGradientBrush x:Key="PumpCoverBrush" StartPoint="0.5,0" EndPoint="0.5,1" MappingMode="RelativeToBoundingBox">
+            <GradientStop Color="#5A5A5A" Offset="0.0"/>
+            <GradientStop Color="#3A3A3A" Offset="0.5"/>
+            <GradientStop Color="#2A2A2A" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Rotor Brush -->
+        <RadialGradientBrush x:Key="RotorBrush" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" GradientOrigin="0.3,0.3">
+            <GradientStop Color="#FFD700" Offset="0.0"/>
+            <GradientStop Color="#DAA520" Offset="0.5"/>
+            <GradientStop Color="#B8860B" Offset="1.0"/>
+        </RadialGradientBrush>
+
+        <!-- Flange Brush -->
+        <LinearGradientBrush x:Key="FlangeBrush" StartPoint="0,0" EndPoint="1,0" MappingMode="RelativeToBoundingBox">
+            <GradientStop Color="#5A5A5A" Offset="0.0"/>
+            <GradientStop Color="#3A3A3A" Offset="0.5"/>
+            <GradientStop Color="#2A2A2A" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Gauge Brush -->
+        <RadialGradientBrush x:Key="GaugeBrush" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" GradientOrigin="0.3,0.3">
+            <GradientStop Color="#1A1A1A" Offset="0.0"/>
+            <GradientStop Color="#0A0A0A" Offset="0.5"/>
+            <GradientStop Color="#050505" Offset="1.0"/>
+        </RadialGradientBrush>
+
+        <!-- Oil Brush -->
+        <LinearGradientBrush x:Key="OilBrush" StartPoint="0,0" EndPoint="1,0" MappingMode="RelativeToBoundingBox">
+            <GradientStop Color="#FFD700" Offset="0.0"/>
+            <GradientStop Color="#DAA520" Offset="0.4"/>
+            <GradientStop Color="#B8860B" Offset="0.8"/>
+            <GradientStop Color="#8B6914" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Indicator Light Style -->
+        <Style x:Key="IndicatorLightStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Stroke" Value="#444444"/>
+            <Setter Property="StrokeThickness" Value="2"/>
+        </Style>
+
+        <!-- Rotor Animation -->
+        <Storyboard x:Key="RotorAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="RotorRotation"
+                             Storyboard.TargetProperty="Angle"
+                             From="0" To="360"
+                             Duration="0:0:1"/>
+        </Storyboard>
+    </local:BaseEquipmentControl.Resources>
+
+    <Grid x:Name="RootGrid" Width="70" Height="100" RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <RotateTransform x:Name="RotationTransform" Angle="0" CenterX="35" CenterY="50"/>
+                <ScaleTransform x:Name="ScaleTransform" ScaleX="1" ScaleY="1"/>
+            </TransformGroup>
+        </Grid.RenderTransform>
+
+        <!-- Shadow -->
+        <Ellipse Fill="#40000000" Width="50" Height="6" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,-2" Opacity="0.3" IsHitTestVisible="False">
+            <Ellipse.Effect>
+                <BlurEffect Radius="3"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <!-- Pump Body -->
+        <Path x:Name="PumpBody"
+              Data="{StaticResource PumpBodyGeometry}"
+              Fill="{StaticResource PumpBodyBrush}"
+              Stroke="#555555" StrokeThickness="1.5">
+            <Path.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="2" Opacity="0.5" Direction="270"/>
+            </Path.Effect>
+        </Path>
+
+        <!-- Pump Cover -->
+        <Path x:Name="PumpCover"
+              Data="{StaticResource PumpCoverGeometry}"
+              Fill="{StaticResource PumpCoverBrush}"
+              Stroke="#666666" StrokeThickness="1"
+              Canvas.Left="5" Canvas.Top="0">
+            <Path.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.4"/>
+            </Path.Effect>
+        </Path>
+
+        <!-- Rotor -->
+        <Path x:Name="Rotor"
+              Data="{StaticResource RotorGeometry}"
+              Fill="{StaticResource RotorBrush}"
+              Canvas.Left="20" Canvas.Top="15"
+              Width="30" Height="20"
+              RenderTransformOrigin="0.5,0.5">
+            <Path.RenderTransform>
+                <RotateTransform x:Name="RotorRotation" CenterX="15" CenterY="10" Angle="0"/>
+            </Path.RenderTransform>
+        </Path>
+
+        <!-- Inlet Flange -->
+        <Path x:Name="InletFlange"
+              Data="{StaticResource FlangeGeometry}"
+              Fill="{StaticResource FlangeBrush}"
+              Stroke="#666666" StrokeThickness="2"
+              Canvas.Left="25" Canvas.Top="-15"
+              Width="20" Height="15">
+            <Path.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.5"/>
+            </Path.Effect>
+        </Path>
+
+        <!-- Outlet Flange -->
+        <Path x:Name="OutletFlange"
+              Data="{StaticResource FlangeGeometry}"
+              Fill="{StaticResource FlangeBrush}"
+              Stroke="#666666" StrokeThickness="2"
+              Canvas.Left="25" Canvas.Top="50"
+              Width="20" Height="15">
+            <Path.RenderTransform>
+                <RotateTransform CenterX="10" CenterY="7.5" Angle="180"/>
+            </Path.RenderTransform>
+            <Path.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.5"/>
+            </Path.Effect>
+        </Path>
+
+        <!-- Pressure Gauge -->
+        <Ellipse x:Name="Gauge"
+                 Width="40" Height="40"
+                 Fill="{StaticResource GaugeBrush}"
+                 Stroke="#333333" StrokeThickness="2"
+                 Canvas.Left="15" Canvas.Top="55">
+            <Ellipse.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="1" Opacity="0.5"/>
+            </Ellipse.Effect>
+            <Ellipse.RenderTransform>
+                <TranslateTransform X="20" Y="20"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <!-- Gauge Needle -->
+        <Path x:Name="Needle"
+              Data="{StaticResource NeedleGeometry}"
+              Fill="#FF4444"
+              Canvas.Left="35" Canvas.Top="75"
+              Width="6" Height="15"
+              RenderTransformOrigin="0.5,1">
+            <Path.RenderTransform>
+                <RotateTransform x:Name="NeedleRotation" CenterX="3" CenterY="15" Angle="-90"/>
+            </Path.RenderTransform>
+        </Path>
+
+        <!-- Oil Level Indicator -->
+        <Border x:Name="OilLevelBorder"
+                Background="{StaticResource OilBrush}"
+                BorderBrush="#666666" BorderThickness="1"
+                CornerRadius="2"
+                Width="8" Height="30"
+                Canvas.Left="58" Canvas.Top="20"
+                Visibility="Collapsed">
+            <Border.RenderTransform>
+                <ScaleTransform x:Name="OilLevelScale" ScaleX="1" ScaleY="0" CenterX="4" CenterY="30"/>
+            </Border.RenderTransform>
+        </Border>
+
+        <!-- Status Light -->
+        <Ellipse x:Name="StatusLight"
+                 Width="12" Height="12"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,4,4,0" Stroke="#444444" StrokeThickness="2">
+            <Ellipse.Fill>
+                <RadialGradientBrush Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" GradientOrigin="0.5,0.5">
+                    <GradientStop Color="#404040" Offset="0.0"/>
+                    <GradientStop Color="#202020" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <!-- Anchor Points -->
+        <ItemsControl x:Name="AnchorsControl" Visibility="Collapsed">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Style="{StaticResource AnchorPointStyle}"
+                             Fill="{Binding IsConnected, Converter={StaticResource BoolToConnectedBrushConverter}}"
+                             ToolTip="{Binding Name}"
+                             Tag="{Binding}">
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform X="-7" Y="-7" />
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Position.X, Converter={StaticResource PointToCanvasLeftConverter}}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Position.Y, Converter={StaticResource PointToCanvasTopConverter}}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <!-- Selection Border -->
+        <Border x:Name="SelectionBorder" Style="{StaticResource SelectionBorderStyle}" Visibility="Collapsed"/>
+    </Grid>
+</local:BaseEquipmentControl>
+
+

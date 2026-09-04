@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core -->
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="System.Speech" Version="9.0.0" />
+    
+    <!-- Logging -->
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    
+    <!-- Database -->
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    
+    <!-- OPC UA - Commented out for now due to package availability issues -->
+    <!-- <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="2.0.0-preview.2" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="2.0.0-preview.2" /> -->
+    
+    <!-- Configuration - Updated to 10.0.0 for compatibility -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    
+    <!-- Utilities -->
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+    
+    <!-- Charts - Use LiveChartsCore 2.x -->
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Models\**\*.cs" />
+    <Compile Update="Services\**\*.cs" />
+    <Compile Update="ViewModels\**\*.cs" />
+    <Compile Update="Infrastructure\**\*.cs" />
+    <Compile Update="Configuration\**\*.cs" />
+    <Compile Update="Views\**\*.cs" />
+    <Compile Update="Controls\**\*.cs" />
+    <Compile Update="Designer\**\*.cs" />
+    <Compile Update="Runtime\**\*.cs" />
+    <Compile Update="Extensions\**\*.cs" />
+    <Compile Update="Converters\**\*.cs" />
+  </ItemGroup>
+
+</Project>
