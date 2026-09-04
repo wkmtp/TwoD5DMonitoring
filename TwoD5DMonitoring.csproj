@@ -43,7 +43,7 @@
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     
     <!-- Charts - Use LiveChartsCore 2.x -->
-    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
   </ItemGroup>
 
   <ItemGroup>
