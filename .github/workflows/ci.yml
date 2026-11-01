@@ -50,7 +50,7 @@ jobs:
 
       # ===== Generate coverage report =====
       - name: Generate coverage report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.11
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.12
         with:
           reports: 'TwoD5DMonitoring.Tests/TestResults/**/coverage.cobertura.xml'
           targetdir: 'TwoD5DMonitoring.Tests/TestResults/CoverageReport'
